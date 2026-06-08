@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hadassah Ajayi — Virtual Assistant & Creative Operator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  /* ── CSS Variables ─────────────────────────────────────────── */
+  :root {
+    --forest:      #2C5F4A;
+    --forest-dark: #1E4535;
+    --sage:        #5C8C72;
+    --sage-light:  #A8C5B5;
+    --terracotta:  #C4714A;
+    --terra-light: #E8A882;
+    --blush:       #EDD9CE;
+    --cream:       #FAF6F0;
+    --warm-white:  #FFFDF9;
+    --charcoal:    #2A2A2A;
+    --warmgrey:    #7A7068;
+    --lightgrey:   #E8E2D9;
+
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body:    'DM Sans', system-ui, sans-serif;
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  /* ── Reset & Base ──────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--charcoal);
+    font-family: var(--font-body);
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+    cursor: none; /* custom cursor */
+  }
+
+  /* ── Custom Cursor ─────────────────────────────────────────── */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--terracotta);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.3s var(--ease-out-expo), height 0.3s var(--ease-out-expo), background 0.3s;
+    mix-blend-mode: multiply;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--terracotta);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s var(--ease-out-expo), width 0.3s, height 0.3s, opacity 0.3s;
+    opacity: 0.6;
+  }
+  body:hover .cursor { opacity: 1; }
+
+  /* ── Grain Overlay ─────────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ── Navigation ────────────────────────────────────────────── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.4s, padding 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(250, 246, 240, 0.92);
+    backdrop-filter: blur(12px);
+    padding: 14px 48px;
+    border-bottom: 1px solid var(--lightgrey);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--forest);
+    text-decoration: none;
+  }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--warmgrey);
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--terracotta); }
+
+  /* ── Scroll-reveal base ────────────────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.9s var(--ease-out-expo), transform 0.9s var(--ease-out-expo);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.9s var(--ease-out-expo), transform 0.9s var(--ease-out-expo);
+  }
+  .reveal-left.visible { opacity: 1; transform: translateX(0); }
+  .reveal-right {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.9s var(--ease-out-expo), transform 0.9s var(--ease-out-expo);
+  }
+  .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+  /* staggered delay helpers */
+  .d1 { transition-delay: 0.1s; }
+  .d2 { transition-delay: 0.2s; }
+  .d3 { transition-delay: 0.3s; }
+  .d4 { transition-delay: 0.4s; }
+  .d5 { transition-delay: 0.5s; }
+  .d6 { transition-delay: 0.6s; }
+
+  /* ── HERO ───────────────────────────────────────────────────── */
+  #hero {
+    min-height: 100vh;
+    background: var(--forest-dark);
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  /* animated organic blobs */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+  .blob-1 {
+    width: 500px; height: 500px;
+    background: var(--terracotta);
+    top: -120px; right: -80px;
+    animation-duration: 14s;
+  }
+  .blob-2 {
+    width: 350px; height: 350px;
+    background: var(--sage);
+    bottom: -80px; left: 10%;
+    animation-duration: 10s;
+    animation-delay: -4s;
+  }
+  .blob-3 {
+    width: 250px; height: 250px;
+    background: var(--blush);
+    top: 40%; left: 45%;
+    animation-duration: 16s;
+    animation-delay: -8s;
+    opacity: 0.08;
+  }
+  @keyframes drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, -30px) scale(1.08); }
+  }
+
+  /* thin vertical line dividers */
+  #hero::after {
+    content: '';
+    position: absolute;
+    left: 50%; top: 15%; height: 70%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.12), transparent);
+  }
+
+  .hero-left {
+    padding: 120px 64px 80px 80px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--terra-light);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--terra-light);
+    display: block;
+  }
+  .hero-name {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 5vw, 5rem);
+    font-weight: 300;
+    line-height: 1.08;
+    color: var(--warm-white);
+    margin-bottom: 8px;
+  }
+  .hero-name em {
+    font-style: italic;
+    color: var(--terra-light);
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--sage-light);
+    margin-bottom: 32px;
+    letter-spacing: 0.02em;
+  }
+  .hero-desc {
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.62);
+    max-width: 380px;
+    margin-bottom: 40px;
+  }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--terracotta);
+    color: white;
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    transition: background 0.3s, transform 0.3s var(--ease-out-expo), gap 0.3s;
+  }
+  .hero-cta:hover {
+    background: var(--terra-light);
+    transform: translateY(-2px);
+    gap: 18px;
+  }
+  .hero-cta .arrow { font-size: 1rem; transition: transform 0.3s; }
+  .hero-cta:hover .arrow { transform: translateX(4px); }
+
+  .hero-right {
+    padding: 120px 80px 80px 64px;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 40px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    padding: 24px 20px;
+    transition: background 0.3s;
+  }
+  .stat-card:hover { background: rgba(255,255,255,0.07); }
+  .stat-number {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    font-weight: 600;
+    color: var(--terracotta);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .hero-brands {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 24px;
+  }
+  .hero-brands p {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 14px;
+  }
+  .brand-pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .brand-pill {
+    padding: 6px 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.04em;
+    transition: border-color 0.3s, color 0.3s;
+  }
+  .brand-pill:hover {
+    border-color: var(--terra-light);
+    color: var(--terra-light);
+  }
+
+  /* hero load animation */
+  .hero-left > *, .hero-right > * {
+    opacity: 0;
+    transform: translateY(24px);
+    animation: heroIn 0.9s var(--ease-out-expo) forwards;
+  }
+  .hero-eyebrow  { animation-delay: 0.2s; }
+  .hero-name     { animation-delay: 0.35s; }
+  .hero-title    { animation-delay: 0.45s; }
+  .hero-desc     { animation-delay: 0.55s; }
+  .hero-cta      { animation-delay: 0.68s; }
+  .hero-stats    { animation-delay: 0.5s; }
+  .hero-brands   { animation-delay: 0.7s; }
+  @keyframes heroIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Shared section styles ─────────────────────────────────── */
+  section { position: relative; }
+
+  .container {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+
+  .section-eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-eyebrow::before {
+    content: '';
+    width: 24px; height: 1px;
+    background: var(--terracotta);
+    display: block;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 300;
+    line-height: 1.15;
+    color: var(--forest-dark);
+    margin-bottom: 16px;
+  }
+  .section-title em { font-style: italic; color: var(--terracotta); }
+
+  /* ── ABOUT ──────────────────────────────────────────────────── */
+  #about {
+    padding: 120px 0;
+    background: var(--warm-white);
+  }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .about-body p {
+    font-size: 0.95rem;
+    line-height: 1.9;
+    color: var(--warmgrey);
+    margin-bottom: 18px;
+  }
+  .about-body p strong { color: var(--forest); font-weight: 500; }
+  .about-body p em { color: var(--terracotta); font-style: italic; }
+
+  .about-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .value-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+    background: var(--cream);
+    border-left: 3px solid transparent;
+    transition: border-color 0.3s, background 0.3s, transform 0.3s var(--ease-out-expo);
+  }
+  .value-row:hover {
+    border-left-color: var(--terracotta);
+    background: var(--warm-white);
+    transform: translateX(6px);
+  }
+  .value-num {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--lightgrey);
+    font-weight: 600;
+    min-width: 36px;
+    line-height: 1;
+  }
+  .value-text h4 {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--forest);
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+  }
+  .value-text p {
+    font-size: 0.8rem;
+    color: var(--warmgrey);
+    line-height: 1.6;
+  }
+
+  /* ── SERVICES ───────────────────────────────────────────────── */
+  #services {
+    padding: 120px 0;
+    background: var(--forest-dark);
+    overflow: hidden;
+  }
+  #services .section-eyebrow { color: var(--terra-light); }
+  #services .section-eyebrow::before { background: var(--terra-light); }
+  #services .section-title { color: var(--warm-white); }
+  #services .section-title em { color: var(--terra-light); }
+
+  .services-intro {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.5);
+    max-width: 520px;
+    line-height: 1.8;
+    margin-bottom: 64px;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+  .service-card {
+    padding: 36px 28px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.4s, transform 0.4s var(--ease-out-expo);
+    cursor: default;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--terracotta);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s var(--ease-out-expo);
+  }
+  .service-card:hover {
+    background: rgba(255,255,255,0.07);
+    transform: translateY(-4px);
+  }
+  .service-card:hover::before { transform: scaleX(1); }
+  .service-icon {
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    display: block;
+    opacity: 0.7;
+  }
+  .service-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--warm-white);
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .service-card p {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.75;
+  }
+
+  /* ── EXPERIENCE ─────────────────────────────────────────────── */
+  #experience {
+    padding: 120px 0;
+    background: var(--cream);
+  }
+  .exp-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .exp-sticky {
+    position: sticky;
+    top: 100px;
+  }
+  .exp-sticky .section-title { margin-bottom: 24px; }
+  .exp-sticky p {
+    font-size: 0.85rem;
+    color: var(--warmgrey);
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+
+  .exp-list { display: flex; flex-direction: column; gap: 2px; }
+  .exp-item {
+    padding: 28px 32px;
+    background: var(--warm-white);
+    border-left: 3px solid var(--lightgrey);
+    transition: border-color 0.3s, transform 0.4s var(--ease-out-expo), box-shadow 0.4s;
+    cursor: default;
+  }
+  .exp-item:hover {
+    border-left-color: var(--terracotta);
+    transform: translateX(6px);
+    box-shadow: -6px 0 24px rgba(196, 113, 74, 0.08);
+  }
+  .exp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .exp-org {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--forest-dark);
+  }
+  .exp-date {
+    font-size: 0.72rem;
+    color: var(--sage);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 3px 10px;
+    background: rgba(92, 140, 114, 0.1);
+  }
+  .exp-role {
+    font-size: 0.78rem;
+    color: var(--terracotta);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .exp-points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .exp-points li {
+    font-size: 0.82rem;
+    color: var(--warmgrey);
+    line-height: 1.65;
+    padding-left: 16px;
+    position: relative;
+  }
+  .exp-points li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--sage-light);
+    font-size: 0.7rem;
+  }
+
+  /* ── WHO I WORK WITH ───────────────────────────────────────── */
+  #fit {
+    padding: 120px 0;
+    background: var(--blush);
+    overflow: hidden;
+    position: relative;
+  }
+  #fit::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(196,113,74,0.12), transparent 70%);
+    pointer-events: none;
+  }
+  .fit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .fit-quote {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--forest-dark);
+    margin-bottom: 28px;
+  }
+  .fit-quote strong {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--terracotta);
+  }
+  .fit-body {
+    font-size: 0.88rem;
+    color: var(--warmgrey);
+    line-height: 1.85;
+    margin-bottom: 32px;
+  }
+  .fit-body strong { color: var(--forest); font-weight: 500; }
+
+  .fit-tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .fit-tile {
+    padding: 18px 20px;
+    background: white;
+    border-bottom: 2px solid var(--lightgrey);
+    transition: border-color 0.3s, transform 0.3s var(--ease-out-expo);
+  }
+  .fit-tile:hover {
+    border-bottom-color: var(--terracotta);
+    transform: translateY(-3px);
+  }
+  .fit-tile h4 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--forest-dark);
+    margin-bottom: 4px;
+  }
+  .fit-tile p {
+    font-size: 0.74rem;
+    color: var(--warmgrey);
+  }
+
+  /* ── SKILLS ─────────────────────────────────────────────────── */
+  #skills {
+    padding: 120px 0;
+    background: var(--warm-white);
+  }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+  }
+  .skill-group h3 {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--lightgrey);
+  }
+  .skill-group ul { list-style: none; }
+  .skill-group li {
+    font-size: 0.82rem;
+    color: var(--warmgrey);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    transition: color 0.2s, padding-left 0.3s;
+  }
+  .skill-group li:hover {
+    color: var(--forest);
+    padding-left: 6px;
+  }
+
+  /* ── CTA ────────────────────────────────────────────────────── */
+  #contact {
+    padding: 140px 0;
+    background: var(--forest);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #contact::before {
+    content: '';
+    position: absolute;
+    bottom: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse, rgba(196,113,74,0.2), transparent 70%);
+    pointer-events: none;
+  }
+  .contact-eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--terra-light);
+    margin-bottom: 24px;
+    opacity: 0.8;
+  }
+  .contact-heading {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 300;
+    color: var(--warm-white);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .contact-heading em {
+    font-style: italic;
+    color: var(--terra-light);
+  }
+  .contact-sub {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.5);
+    max-width: 440px;
+    margin: 0 auto 48px;
+    line-height: 1.8;
+  }
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: transform 0.3s var(--ease-out-expo), background 0.3s;
+  }
+  .contact-link.primary {
+    background: var(--terracotta);
+    color: white;
+  }
+  .contact-link.primary:hover {
+    background: var(--terra-light);
+    transform: translateY(-3px);
+  }
+  .contact-link.secondary {
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7);
+  }
+  .contact-link.secondary:hover {
+    border-color: rgba(255,255,255,0.5);
+    color: white;
+    transform: translateY(-3px);
+  }
+
+  /* ── Footer ─────────────────────────────────────────────────── */
+  footer {
+    padding: 24px 48px;
+    background: var(--forest-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer p {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Scrollbar ──────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--cream); }
+  ::-webkit-scrollbar-thumb { background: var(--sage-light); }
+
+  /* ── Mobile ─────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+    nav { padding: 16px 24px; }
+    nav.scrolled { padding: 12px 24px; }
+    .nav-links { display: none; }
+    .container { padding: 0 24px; }
+    #hero { grid-template-columns: 1fr; min-height: auto; padding-bottom: 60px; }
+    #hero::after { display: none; }
+    .hero-left { padding: 100px 24px 40px; }
+    .hero-right { padding: 0 24px 60px; }
+    .hero-stats { grid-template-columns: 1fr 1fr; }
+    .about-grid, .exp-layout, .fit-grid { grid-template-columns: 1fr; gap: 40px; }
+    .exp-sticky { position: static; }
+    .services-grid { grid-template-columns: 1fr; }
+    .skills-grid { grid-template-columns: 1fr 1fr; }
+    .fit-tiles { grid-template-columns: 1fr; }
+    section { padding: 80px 0; }
+    #hero { padding-bottom: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Navigation -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">Hadassah Ajayi</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#fit">The Right Fit</a></li>
+    <li><a href="#contact">Let's Talk</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow">Virtual Assistant & Creative Operator</div>
+    <h1 class="hero-name">Hadassah<br/><em>Ajayi</em></h1>
+    <p class="hero-title">Making the work behind the work invisible.</p>
+    <p class="hero-desc">I run two brands, coordinate operations across multiple clients, and build community for women navigating healing and growth. Behind every purpose-driven founder, there's someone holding everything together. That's me.</p>
+    <a href="#contact" class="hero-cta">Let's work together <span class="arrow">→</span></a>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-number">5+</div>
+        <div class="stat-label">Years in Content & Ops</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">2</div>
+        <div class="stat-label">Active Brands Managed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">60+</div>
+        <div class="stat-label">Monthly Deliverables</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">4yrs</div>
+        <div class="stat-label">Broadcast Experience</div>
+      </div>
+    </div>
+    <div class="hero-brands">
+      <p>Currently open to roles at</p>
+      <div class="brand-pills">
+        <span class="brand-pill">Women's Wellness Brands</span>
+        <span class="brand-pill">Healing Communities</span>
+        <span class="brand-pill">Purpose-Driven Orgs</span>
+        <span class="brand-pill">Remote-First Teams</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ABOUT ══════════════════════════════════════════════════════ -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-body reveal reveal-left">
+        <div class="section-eyebrow">Who I Am</div>
+        <h2 class="section-title">Creative operator.<br/><em>Community builder.</em></h2>
+        <p>I'm based in Lagos, Nigeria, and I run two brands simultaneously: <strong>Your Lagos Assistant (YLA)</strong>, a coordination and support service for busy professionals, and <strong>TheHadassahh</strong>, a digital healing community for First Daughters — women in their 30s navigating identity, growth, and self-discovery.</p>
+        <p>My work sits at the intersection of <em>operational precision and emotional intelligence</em>. I don't just execute tasks — I hold the full picture: the deadline, the brand voice, the feeling a founder wants their community to have.</p>
+        <p>The brands I'm drawn to are ones like <strong>The Soft Reset</strong> — organisations creating genuine space for women's growth and healing. I understand the weight of that mission because I live it, and I bring the same care and discipline to support work that founders bring to building their vision.</p>
+      </div>
+      <div class="about-right reveal reveal-right">
+        <div class="value-row d1 reveal">
+          <span class="value-num">01</span>
+          <div class="value-text">
+            <h4>I hold the whole picture</h4>
+            <p>Not just the task in front of me — the deadline, the voice, the standard, and what happens next.</p>
+          </div>
+        </div>
+        <div class="value-row d2 reveal">
+          <span class="value-num">02</span>
+          <div class="value-text">
+            <h4>I show up without hand-holding</h4>
+            <p>Once I understand the mission, I execute independently. No chasing. No reminders.</p>
+          </div>
+        </div>
+        <div class="value-row d3 reveal">
+          <span class="value-num">03</span>
+          <div class="value-text">
+            <h4>I treat the work like it matters</h4>
+            <p>Because it does. Small details compound. I know that, and I act on it.</p>
+          </div>
+        </div>
+        <div class="value-row d4 reveal">
+          <span class="value-num">04</span>
+          <div class="value-text">
+            <h4>I communicate proactively</h4>
+            <p>If something changes, I say so. Nobody should be guessing where a deliverable is.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SERVICES ════════════════════════════════════════════════════ -->
+<section id="services">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-eyebrow">What I Do</div>
+      <h2 class="section-title">Services built for<br/><em>founders who need more</em></h2>
+      <p class="services-intro">I offer the kind of support that means a founder can close their laptop on Friday knowing nothing fell through the cracks.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal d1">
+        <span class="service-icon">⟡</span>
+        <h3>Programme & Operations Support</h3>
+        <p>I manage the moving parts that keep your programmes running — scheduling, delivery tracking, system maintenance, and cross-team coordination.</p>
+      </div>
+      <div class="service-card reveal d2">
+        <span class="service-icon">✦</span>
+        <h3>Communications Management</h3>
+        <p>Inbox management, client briefings, community touchpoints — I handle written communication with clarity, warmth, and brand consistency.</p>
+      </div>
+      <div class="service-card reveal d3">
+        <span class="service-icon">◈</span>
+        <h3>Content Coordination</h3>
+        <p>Content calendars, asset production, captions and copy, and cross-platform scheduling — your content machine, running on time.</p>
+      </div>
+      <div class="service-card reveal d4">
+        <span class="service-icon">❋</span>
+        <h3>Community Support & Engagement</h3>
+        <p>I understand community — I built one. I can support engagement, manage touchpoints, and help your audience feel genuinely held and seen.</p>
+      </div>
+      <div class="service-card reveal d5">
+        <span class="service-icon">◇</span>
+        <h3>Task & Project Execution</h3>
+        <p>Research, briefing, drafting, formatting deliverables — I handle the high-volume tasks that free founders to do the work only they can do.</p>
+      </div>
+      <div class="service-card reveal d6">
+        <span class="service-icon">⊹</span>
+        <h3>Brand Voice Writing</h3>
+        <p>I write in your voice, not mine. Captions, newsletters, programme copy — content that sounds human and on-brand every time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ EXPERIENCE ══════════════════════════════════════════════════ -->
+<section id="experience">
+  <div class="container">
+    <div class="exp-layout">
+      <div class="exp-sticky reveal reveal-left">
+        <div class="section-eyebrow">Track Record</div>
+        <h2 class="section-title">Five years.<br/><em>Always delivering.</em></h2>
+        <p>Across broadcast, content, operations, and community, I've built a track record of showing up consistently and producing work that holds.</p>
+        <a href="mailto:hadassahajayii@gmail.com" class="hero-cta" style="font-size:0.72rem; padding:12px 22px;">Get in touch <span class="arrow">→</span></a>
+      </div>
+      <div class="exp-list">
+        <div class="exp-item reveal d1">
+          <div class="exp-header">
+            <span class="exp-org">Your Lagos Assistant</span>
+            <span class="exp-date">2024 – Present</span>
+          </div>
+          <div class="exp-role">Founder & Lead Coordinator</div>
+          <ul class="exp-points">
+            <li>Personal and corporate assistant service for Lagos professionals — coordination, communications, and multi-client delivery.</li>
+            <li>End-to-end production of content calendars, branded assets, and programme materials, on time, every time.</li>
+            <li>Operational workflows and scheduling systems enabling high-output execution without dropping quality.</li>
+          </ul>
+        </div>
+        <div class="exp-item reveal d2">
+          <div class="exp-header">
+            <span class="exp-org">TheHadassahh</span>
+            <span class="exp-date">2023 – Present</span>
+          </div>
+          <div class="exp-role">Founder & Community Lead</div>
+          <ul class="exp-points">
+            <li>Built and lead an active digital community for First Daughters — women navigating healing, identity, and self-discovery.</li>
+            <li>Full weekly content programme independently across four formats: reels, carousels, fun posts, and vlogs.</li>
+            <li>Community of women held with emotional intelligence, consistency, and clear editorial voice — week in, week out.</li>
+          </ul>
+        </div>
+        <div class="exp-item reveal d3">
+          <div class="exp-header">
+            <span class="exp-org">Japa.ng</span>
+            <span class="exp-date">Dec 2022 – Jun 2025</span>
+          </div>
+          <div class="exp-role">Creative & Content Operations Lead</div>
+          <ul class="exp-points">
+            <li>10+ content assets weekly; full publishing pipeline including 60+ posts and 40+ uploads monthly.</li>
+            <li>Built content calendars and scheduling systems; coordinated cross-platform workflows across a lean team.</li>
+            <li>25% increase in audience engagement through structured community touchpoints and consistent execution.</li>
+          </ul>
+        </div>
+        <div class="exp-item reveal d4">
+          <div class="exp-header">
+            <span class="exp-org">Flourish Africa</span>
+            <span class="exp-date">Jan 2023 – Apr 2024</span>
+          </div>
+          <div class="exp-role">Content Coordinator & Writer</div>
+          <ul class="exp-points">
+            <li>Monthly content schedule of 7+ pieces, on time and aligned to editorial standards.</li>
+            <li>40% reduction in content errors through rigorous quality assurance processes.</li>
+          </ul>
+        </div>
+        <div class="exp-item reveal d5">
+          <div class="exp-header">
+            <span class="exp-org">Elegbete TV/Radio</span>
+            <span class="exp-date">Jan 2018 – Apr 2022</span>
+          </div>
+          <div class="exp-role">TV & Radio Presenter</div>
+          <ul class="exp-points">
+            <li>4 years anchoring live segments and co-hosting a weekday morning drive show under strict broadcast deadlines.</li>
+            <li>Scripting, interviewing, live event hosting for daily audiences.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ WHO I WORK WITH ════════════════════════════════════════════ -->
+<section id="fit">
+  <div class="container">
+    <div class="fit-grid">
+      <div class="reveal reveal-left">
+        <div class="section-eyebrow">The Right Fit</div>
+        <h2 class="section-title">I show up fully<br/>for <em>missions that matter.</em></h2>
+        <p class="fit-quote">"I'm at my best when I'm working behind someone whose work genuinely matters."</p>
+        <p class="fit-body">
+          I'm drawn to founders, programmes, and organisations that sit at the intersection of <strong>women's wellness, healing, community, and purpose-driven growth</strong>. Brands like <strong>The Soft Reset</strong> — spaces built to help women pause, reset, and realign — are exactly the kind of environments where I show up fully, because the mission isn't abstract to me. I live it. I build it. I understand what it asks of the people behind it.
+        </p>
+      </div>
+      <div class="fit-tiles reveal reveal-right">
+        <div class="fit-tile d1 reveal">
+          <h4>Women's Wellness Brands</h4>
+          <p>Organisations creating space for rest, healing, and whole-woman growth</p>
+        </div>
+        <div class="fit-tile d2 reveal">
+          <h4>Healing Communities</h4>
+          <p>Platforms and programmes centred on women's identity and emotional wellbeing</p>
+        </div>
+        <div class="fit-tile d3 reveal">
+          <h4>Purpose-Driven Founders</h4>
+          <p>Entrepreneurs building something that genuinely means something</p>
+        </div>
+        <div class="fit-tile d4 reveal">
+          <h4>Content-Forward Small Teams</h4>
+          <p>Lean, high-output teams that need someone who can hold the whole picture</p>
+        </div>
+        <div class="fit-tile d5 reveal">
+          <h4>Remote-First Organisations</h4>
+          <p>Brands built for flexible, distributed, independent work</p>
+        </div>
+        <div class="fit-tile d6 reveal">
+          <h4>Mission-Led Digital Brands</h4>
+          <p>Online communities and platforms where work and meaning overlap</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SKILLS ══════════════════════════════════════════════════════ -->
+<section id="skills">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-eyebrow">Toolkit</div>
+      <h2 class="section-title">Skills & <em>Tools</em></h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-group reveal d1">
+        <h3>Operations</h3>
+        <ul>
+          <li>Task management</li>
+          <li>Scheduling systems</li>
+          <li>Content calendars</li>
+          <li>Workflow design</li>
+          <li>Multi-client delivery</li>
+          <li>Programme coordination</li>
+        </ul>
+      </div>
+      <div class="skill-group reveal d2">
+        <h3>Communication</h3>
+        <ul>
+          <li>Client briefings</li>
+          <li>Brand voice writing</li>
+          <li>Inbox management</li>
+          <li>Community management</li>
+          <li>Newsletter copy</li>
+          <li>Programme comms</li>
+        </ul>
+      </div>
+      <div class="skill-group reveal d3">
+        <h3>Production</h3>
+        <ul>
+          <li>CapCut</li>
+          <li>DaVinci Resolve</li>
+          <li>InShot / VN</li>
+          <li>Canva</li>
+          <li>WordPress</li>
+          <li>AI-assisted workflows</li>
+        </ul>
+      </div>
+      <div class="skill-group reveal d4">
+        <h3>Presenting</h3>
+        <ul>
+          <li>Live broadcast</li>
+          <li>Scripting</li>
+          <li>Interviewing</li>
+          <li>Event hosting</li>
+          <li>Morning drive radio</li>
+          <li>On-camera delivery</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ════════════════════════════════════════════════════ -->
+<section id="contact">
+  <div class="container">
+    <p class="contact-eyebrow reveal">Open to Part-Time & Remote Roles</p>
+    <h2 class="contact-heading reveal d1">Let's work<br/><em>together.</em></h2>
+    <p class="contact-sub reveal d2">If your mission resonates — if you're building something that creates space for women to heal, grow, and become — reach out. I'd love to be part of it.</p>
+    <div class="contact-links reveal d3">
+      <a href="mailto:hadassahajayii@gmail.com" class="contact-link primary">
+        Email me <span>→</span>
+      </a>
+      <a href="tel:+2348102444288" class="contact-link secondary">
+        +234 810 244 4288
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Hadassah Ajayi · Lagos, Nigeria</p>
+  <p>hadassahajayii@gmail.com</p>
+</footer>
+
+<script>
+  // ── Custom cursor ───────────────────────────────────────────
+  const cursor     = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top  = my + 'px';
+  });
+
+  // ring follows with slight lag
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    cursorRing.style.left = rx + 'px';
+    cursorRing.style.top  = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  // expand on hover over interactive elements
+  document.querySelectorAll('a, button, .service-card, .exp-item, .fit-tile, .value-row').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '24px';
+      cursor.style.height = '24px';
+      cursor.style.background = 'var(--sage)';
+      cursorRing.style.width = '56px';
+      cursorRing.style.height = '56px';
+      cursorRing.style.opacity = '0.3';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '12px';
+      cursor.style.height = '12px';
+      cursor.style.background = 'var(--terracotta)';
+      cursorRing.style.width = '36px';
+      cursorRing.style.height = '36px';
+      cursorRing.style.opacity = '0.6';
+    });
+  });
+
+  // ── Nav scroll state ────────────────────────────────────────
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ── Scroll-reveal (IntersectionObserver) ───────────────────
+  const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // don't unobserve — keeps the class permanently
+      }
+    });
+  }, {
+    threshold: 0.12,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  revealEls.forEach(el => observer.observe(el));
+
+  // ── Smooth active nav highlight ────────────────────────────
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  const sectionObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.style.color = '';
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.style.color = 'var(--terracotta)';
+          }
+        });
+      }
+    });
+  }, { threshold: 0.4 });
+
+  sections.forEach(s => sectionObserver.observe(s));
+
+  // ── Counter animation for stat numbers ─────────────────────
+  const statNumbers = document.querySelectorAll('.stat-number');
+  const countObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const raw = el.textContent.trim();
+        const numMatch = raw.match(/\d+/);
+        if (!numMatch) return;
+        const target = parseInt(numMatch[0]);
+        const suffix = raw.replace(/\d+/, '');
+        let current = 0;
+        const duration = 1200;
+        const step = duration / target;
+        const timer = setInterval(() => {
+          current++;
+          el.textContent = current + suffix;
+          if (current >= target) clearInterval(timer);
+        }, step);
+        countObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  statNumbers.forEach(el => countObserver.observe(el));
+</script>
+</body>
+</html>
